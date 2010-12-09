@@ -17,7 +17,7 @@ class Sale {
             $string = explode("\n", $string);
             $check = 0;
             foreach ($string as $line) :
-                
+
                 if ((strlen($line) > 1) && ($check == 0)) :
                     $check = 1;
                     $dName = explode(',', $line);
@@ -29,7 +29,7 @@ class Sale {
                                                                                                                         `district_slug`,
 								    							`district_synonim`)
 								     VALUES ('', '$dName[0]', '$slug', '$fName')");
-                    $lastID = mysql_insert_id(); 
+                    $lastID = mysql_insert_id();
                 elseif (strlen($line) > 1) :
                     $strslug = $this->Translit($line);
                     mysql_query("INSERT INTO streets (
@@ -110,16 +110,16 @@ class Sale {
         $names = explode("\n", $out[1]);
         foreach ($names as $name) :
             if (strlen($name) > 0) :
-                
+
                 $name = explode("|", $name);
-            $secslug = $this->Translit($name[0]); 
+                $secslug = $this->Translit($name[0]);
                 mysql_query("INSERT INTO sections (`id`, `quantity`, `section_name`,`section_slug`, `config`, `group`)
 								     VALUES ('', '$name[2]', '$name[0]','$secslug', '$name[1]', '$name[3]')");
             endif;
         endforeach
         ;
     }
-        function Translit($text) {
+    function Translit($text) {
         $gost = array(
                 "Г"=>"G","Ё"=>"JO","Є"=>"EH","Ы"=>"Y","І"=>"I","і"=>"i","г"=>"g",
                 "ё"=>"jo","№"=>"#","є"=>"eh","ы"=>"y","А"=>"A","Б"=>"B","В"=>"V",
@@ -169,10 +169,10 @@ class Sale {
                 while ($row = mysql_fetch_assoc($query)) {
                     $street[] = $row['street_name'] . '[' . $row['id'] . ']';
                 }
-                
+
                 $streets = array_rand($street, 1);
                 $street = $street[$streets];
-                
+
                 $query1 = mysql_query("SELECT `district_synonim` FROM `districts` WHERE `id` = " . $disID['id'][$chosenD] . " LIMIT 1;");
                 $result = mysql_result($query1, NULL);
                 $result = explode(',', $result);
@@ -629,9 +629,9 @@ class Sale {
                     endforeach
                     ;
                     $rids = substr($rids, 0, - 1);
-                    $this->title .= $rids;
+                    //$this->title .= $rids;
                     @$sids = substr($sids, 0, - 1);
-                    @$this->title .= @$sids;
+                    //@$this->title .= @$sids;
 
 
 
@@ -652,11 +652,13 @@ class Sale {
                         $insertion .= $str . ', ';
                 $insertion = preg_replace("!\[([0-9]+)\]!si", "", $insertion);
                 $insertion = preg_replace("!\{([0-9]+)\}!si", "", $insertion);
-                
+
             endforeach
             ;
             $this->title = preg_replace("/\|[0-9]+\|/", " ", $this->title . '|');
-            
+            $this->title = explode("|", $this->title);
+            $this->title = trim($this->title[0]);
+
             $query = mysql_query("INSERT INTO `arenda`.`ads` (
                                                                     `id` ,
                                                                     `room_type` ,

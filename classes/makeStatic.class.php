@@ -54,7 +54,7 @@ class MakeStatic {
                     $tmpQ['title'][] = $row['street_name'];
                     $tmpQ['count'][] = $row['count'];
                 }
-                $this->prefix = '/distreet/';
+                $this->prefix = '/street/';
                 break;
             case 'rooms':
                 $query = "SELECT `room_type`, count(`id`) AS count FROM ads GROUP BY `room_type` ";
@@ -112,15 +112,24 @@ class MakeStatic {
         return $this->dCloud;
     }
     public function MakeContent($url) {
-        $remStr = 'room,street,district,planning';
+        unset($addval, $ret);
         $url = $this->FormatUrl($url);
-        switch($url['title'][0]){
-            case("district"):
-                $str = "SELECT * FROM `districts` WHERE 1";
-                break;
+        foreach($url['name'] as $num => $val) {
+            if($val == "room") $addval .= " AND `room_type` = '" . $url['param'][$num]."'";
+            if($val == "district") $addval .= " AND `districtID` = '" . $url['param'][$num]."'";
+            if($val == "street") $addval .= " AND `streetID` = '" . $url['param'][$num]."'";
+            if($val == "planning") $addval .= " AND `group_ID` = '" . $url['param'][$num]."'";
+            if($val == "ads") $addval .= " AND `id` = '" . $url['param'][$num]."'";
         }
 
-        print_r($url);
+
+        $str = $this->db->query("SELECT * FROM `ads` WHERE 1" . $addval);
+        while($row = mysql_fetch_array($str)){
+            $ret .= "<a href=\"" . $this->config['url'] ."/ads/". $row['id'] . "." . $this->config['fileext']
+                    . "\" title=\"". $row['title'] ."\">" . $row['title'] . "</a><br/>" ;
+        }
+        return $ret;
+        //print_r($url);
     }
 
     protected function FormatUrl($url) {
@@ -128,7 +137,7 @@ class MakeStatic {
         $t = 1;
         foreach($tmp as $val) {
             if(strlen($val) > 0) {
-                if($this->is_odd($t)){ 
+                if($this->is_odd($t)) {
                     $tmp1['name'][] = $val;
                 } else {
                     $tmp1['param'][] = $val;
